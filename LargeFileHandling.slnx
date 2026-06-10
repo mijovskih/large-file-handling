@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LargeFileHandling.Tests/LargeFileHandling.Tests.csproj" />
+  <Project Path="LargeFileHandling/LargeFileHandling.csproj" />
+</Solution>
