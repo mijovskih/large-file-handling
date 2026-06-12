@@ -51,10 +51,28 @@ namespace LargeFileHandling.InputValidation
                 }
 
                 string destinationDirectory = input.Trim();
+
+                // During testing, I ran into the issue where I provided a file path instead of a folder.
+                // This checks prevents an exception being thrown when replicating that.
+                if (File.Exists(destinationDirectory))
+                {
+                    Console.WriteLine("The specified destination path is a file. Please enter a valid directory path.");
+                    continue;
+                }
+
                 Directory.CreateDirectory(destinationDirectory); // Ensure the directory exists
 
                 string destinationFilePath = Path.Combine(destinationDirectory, Path.GetFileName(sourceFilePath));
 
+                // During testing, I ran into the issue where a folder existed with the exact name as the file I was trying to create.
+                // This check prevents that, but doesn't forbid the user to create a folder with the same name (e.g. file.txt).
+                if (Directory.Exists(destinationFilePath))
+                {
+                    Console.WriteLine("A folder already exists where the file should be created. Please choose another destination.");
+                    continue;
+                }
+
+                // Source and destination paths should not be the same.
                 if (PathsReferToSameFile(sourceFilePath, destinationFilePath))
                 {
                     Console.WriteLine("The destination path cannot be the same as the source file. Please try again.");
