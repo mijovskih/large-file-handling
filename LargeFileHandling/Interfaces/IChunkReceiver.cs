@@ -4,6 +4,6 @@ namespace LargeFileHandling.Interfaces
 {
     public interface IChunkReceiver : IDisposable
     {
-        void Receive(FileChunk chunk);
+        string Receive(FileChunk chunk);
     }
 }

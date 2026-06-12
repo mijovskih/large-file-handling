@@ -1,5 +1,6 @@
 ﻿using LargeFileHandling.Exceptions;
 using LargeFileHandling.FileSystem;
+using LargeFileHandling.Hashing;
 using LargeFileHandling.InputValidation;
 using LargeFileHandling.Interfaces;
 using LargeFileHandling.Models;
@@ -7,9 +8,10 @@ using LargeFileHandling.Services;
 
 try
 {
+    IHashCalculator hashCalculator = new Md5HashCalculator();
     ISourceReaderFactory sourceReaderFactory = new FileSourceReaderFactory();
-    IChunkReceiverFactory chunkReceiverFactory = new FileChunkReceiverFactory();
-    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory);
+    IChunkReceiverFactory chunkReceiverFactory = new FileChunkReceiverFactory(hashCalculator);
+    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator);
 
     var inputReader = new ConsoleInputReader();
 

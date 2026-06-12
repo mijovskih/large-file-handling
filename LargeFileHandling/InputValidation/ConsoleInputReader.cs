@@ -83,6 +83,9 @@ namespace LargeFileHandling.InputValidation
             }
         }
 
+        // I can either use .ToUpper/ToLower or StringComparison.OrdinalIgnoreCase. I prefer the second option.
+        // Strings are immutable, so using the first option would create a new string in memory, unlike the second option.
+        // These are small strings, so performance will not really be an issue, but it's a good opportunity to show this.
         private static bool PathsReferToSameFile(string source, string destination) =>
             string.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase);
     }

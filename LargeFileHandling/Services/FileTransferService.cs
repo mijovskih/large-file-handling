@@ -1,3 +1,4 @@
+using LargeFileHandling.Exceptions;
 using LargeFileHandling.Interfaces;
 using LargeFileHandling.Models;
 
@@ -7,14 +8,17 @@ namespace LargeFileHandling.Services
     {
         private readonly ISourceReaderFactory _sourceReaderFactory;
         private readonly IChunkReceiverFactory _chunkReceiverFactory;
+        private readonly IHashCalculator _hashCalculator;
 
-        public FileTransferService(ISourceReaderFactory sourceReaderFactory, IChunkReceiverFactory chunkReceiverFactory)
+        public FileTransferService(ISourceReaderFactory sourceReaderFactory, IChunkReceiverFactory chunkReceiverFactory, IHashCalculator hashCalculator)
         {
             ArgumentNullException.ThrowIfNull(sourceReaderFactory);
             ArgumentNullException.ThrowIfNull(chunkReceiverFactory);
+            ArgumentNullException.ThrowIfNull(hashCalculator);
 
             _sourceReaderFactory = sourceReaderFactory;
             _chunkReceiverFactory = chunkReceiverFactory;
+            _hashCalculator = hashCalculator;
         }
 
         public void Transfer(TransferRequest request)
@@ -30,7 +34,12 @@ namespace LargeFileHandling.Services
             {
                 int chunkLength = (int)Math.Min(request.ChunkSize, length - offset);
                 FileChunk chunk = source.Read(offset, chunkLength);
-                receiver.Receive(chunk);
+
+                string sourceHash = _hashCalculator.ComputeHash(chunk.Data);
+                string destinationHash = receiver.Receive(chunk);
+                
+                if (sourceHash != destinationHash)
+                    throw new ChunkVerificationException(offset, sourceHash, destinationHash);
             }
         }
     }
