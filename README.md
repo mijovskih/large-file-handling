@@ -5,3 +5,5 @@ entirely on interfaces. The concrete classes are wired up in Program.cs, and the
 built via factories, since their paths are only known at runtime.
 
 Added background functionality to hash chunks using MD5, and verify hash on transfer, after saving to hard disk.
+
+Added functionality to show chunk checksums.

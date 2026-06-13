@@ -1,6 +1,6 @@
 using LargeFileHandling.Models;
 
-namespace LargeFileHandling.InputValidation
+namespace LargeFileHandling.ConsoleInputOutput
 {
     public sealed class ConsoleInputReader
     {

@@ -4,6 +4,6 @@ namespace LargeFileHandling.Interfaces
 {
     public interface IFileTransferService
     {
-        void Transfer(TransferRequest request);
+        TransferReport Transfer(TransferRequest request);
     }
 }

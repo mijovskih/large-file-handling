@@ -4,7 +4,7 @@ using LargeFileHandling.Models;
 
 namespace LargeFileHandling.Services
 {
-    public class FileTransferService : IFileTransferService
+    public sealed class FileTransferService : IFileTransferService
     {
         private readonly ISourceReaderFactory _sourceReaderFactory;
         private readonly IChunkReceiverFactory _chunkReceiverFactory;
@@ -21,7 +21,7 @@ namespace LargeFileHandling.Services
             _hashCalculator = hashCalculator;
         }
 
-        public void Transfer(TransferRequest request)
+        public TransferReport Transfer(TransferRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -30,6 +30,9 @@ namespace LargeFileHandling.Services
 
             using IChunkReceiver receiver = _chunkReceiverFactory.Create(request.DestinationFilePath, length);
 
+            var checksums = new List<ChunkChecksum>();
+            int index = 0;
+            
             for (long offset = 0; offset < length; offset += request.ChunkSize)
             {
                 int chunkLength = (int)Math.Min(request.ChunkSize, length - offset);
@@ -37,10 +40,15 @@ namespace LargeFileHandling.Services
 
                 string sourceHash = _hashCalculator.ComputeHash(chunk.Data);
                 string destinationHash = receiver.Receive(chunk);
-                
+
                 if (sourceHash != destinationHash)
-                    throw new ChunkVerificationException(offset, sourceHash, destinationHash);
+                    throw new ChunkVerificationException(index, offset, sourceHash, destinationHash);
+            
+                checksums.Add(new ChunkChecksum(index, offset, sourceHash));
+                index++;
             }
+
+            return new TransferReport(checksums);
         }
     }
 }
