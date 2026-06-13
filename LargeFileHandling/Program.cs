@@ -12,7 +12,8 @@ try
     IFileHasher fileHasher = new Sha256HashCalculator();
     ISourceReaderFactory sourceReaderFactory = new FileSourceReaderFactory();
     IChunkReceiverFactory chunkReceiverFactory = new FileChunkReceiverFactory(hashCalculator);
-    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator, fileHasher);
+    IProgressReporter progressReporter = new ConsoleProgressReport();
+    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator, fileHasher, progressReporter);
 
     var inputReader = new ConsoleInputReader();
 

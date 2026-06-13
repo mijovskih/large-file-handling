@@ -12,3 +12,5 @@ Changed from synchronous programming to asynchronous.
 The console app would not benefit from asynchronous programming - it is only 1 request that copies a file, there are no additional requests that would be blocked if the thread is locked waiting for I/O. The real reason is future scalability. If we want to build an API on top of this application, the business logic needs to be re-usable and support such implementation. That's where we can really benefit from asynchronous programming.
 
 Added functionality to compute and show whole file checksums.
+
+Added functionality to display progress while file is being copied.

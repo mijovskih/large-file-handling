@@ -10,21 +10,25 @@ namespace LargeFileHandling.Services
         private readonly IChunkReceiverFactory _chunkReceiverFactory;
         private readonly IHashCalculator _hashCalculator;
         private readonly IFileHasher _fileHasher;
-
+        private readonly IProgressReporter _progressReporter;
+        
         public FileTransferService(ISourceReaderFactory sourceReaderFactory, 
             IChunkReceiverFactory chunkReceiverFactory, 
             IHashCalculator hashCalculator,
-            IFileHasher fileHasher)
+            IFileHasher fileHasher,
+            IProgressReporter progressReporter)
         {
             ArgumentNullException.ThrowIfNull(sourceReaderFactory);
             ArgumentNullException.ThrowIfNull(chunkReceiverFactory);
             ArgumentNullException.ThrowIfNull(hashCalculator);
             ArgumentNullException.ThrowIfNull(fileHasher);
+            ArgumentNullException.ThrowIfNull(progressReporter);
 
             _sourceReaderFactory = sourceReaderFactory;
             _chunkReceiverFactory = chunkReceiverFactory;
             _hashCalculator = hashCalculator;
             _fileHasher = fileHasher;
+            _progressReporter = progressReporter;
         }
 
         public async Task<TransferReport> TransferAsync(TransferRequest request, CancellationToken cancellationToken)
@@ -37,6 +41,7 @@ namespace LargeFileHandling.Services
             using (IChunkReceiver receiver = _chunkReceiverFactory.Create(request.DestinationFilePath, source.Length))
             {
                 long length = source.Length;
+                long bytesTransferred = 0;
                 int index = 0;
                 
                 for (long offset = 0; offset < length; offset += request.ChunkSize)
@@ -51,6 +56,8 @@ namespace LargeFileHandling.Services
                         throw new ChunkVerificationException(index, offset, sourceHash, destinationHash);
                 
                     checksums.Add(new ChunkChecksum(index, offset, sourceHash));
+                    bytesTransferred += chunkLength;
+                    _progressReporter.ShowProgress(bytesTransferred, length);
                     index++;
                 }
             }
