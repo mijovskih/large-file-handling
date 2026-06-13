@@ -4,6 +4,6 @@ namespace LargeFileHandling.Interfaces
 {
     public interface IChunkReceiver : IDisposable
     {
-        string Receive(FileChunk chunk);
+        Task<string> ReceiveAsync(FileChunk chunk, CancellationToken cancellationToken);
     }
 }

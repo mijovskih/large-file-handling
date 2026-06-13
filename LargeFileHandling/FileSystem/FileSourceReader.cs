@@ -11,20 +11,22 @@ namespace LargeFileHandling.FileSystem
 
         public FileSourceReader(string path)
         {
-            _handle = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            _handle = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.Read, FileOptions.Asynchronous);
             Length = RandomAccess.GetLength(_handle);
         }
 
-        public FileChunk Read(long offset, int length)
+        public async Task<FileChunk> ReadAsync(long offset, int length, CancellationToken cancellationToken)
         {
             var buffer = new byte[length]; // Allocating a buffer to the length of a chunk.
             int total = 0; // Total bytes read so far.
 
             while (total < length)
             {
-                int read = RandomAccess.Read(_handle, buffer.AsSpan(total), offset + total); // Read into the buffer; increase the offset by the total bytes read so far.
+                int read = await RandomAccess.ReadAsync(_handle, buffer.AsMemory(total), offset + total, cancellationToken); // Read into the buffer; increase the offset by the total bytes read so far.
+                
                 if (read == 0) // If read equals 0, then we reached the end of file before reading the allocated chunk size.
                     throw new EndOfStreamException($"Expected {length} bytes at offset {offset}, but reached end of file after reading {total} bytes.");
+                
                 total += read;
             }
 

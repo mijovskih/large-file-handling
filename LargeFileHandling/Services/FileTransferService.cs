@@ -21,7 +21,7 @@ namespace LargeFileHandling.Services
             _hashCalculator = hashCalculator;
         }
 
-        public TransferReport Transfer(TransferRequest request)
+        public async Task<TransferReport> TransferAsync(TransferRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -36,10 +36,10 @@ namespace LargeFileHandling.Services
             for (long offset = 0; offset < length; offset += request.ChunkSize)
             {
                 int chunkLength = (int)Math.Min(request.ChunkSize, length - offset);
-                FileChunk chunk = source.Read(offset, chunkLength);
+                FileChunk chunk = await source.ReadAsync(offset, chunkLength, cancellationToken);
 
                 string sourceHash = _hashCalculator.ComputeHash(chunk.Data);
-                string destinationHash = receiver.Receive(chunk);
+                string destinationHash = await receiver.ReceiveAsync(chunk, cancellationToken);
 
                 if (sourceHash != destinationHash)
                     throw new ChunkVerificationException(index, offset, sourceHash, destinationHash);

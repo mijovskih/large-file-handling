@@ -7,3 +7,6 @@ built via factories, since their paths are only known at runtime.
 Added background functionality to hash chunks using MD5, and verify hash on transfer, after saving to hard disk.
 
 Added functionality to show chunk checksums.
+
+Changed from synchronous programming to asynchronous.
+The console app would not benefit from asynchronous programming - it is only 1 request that copies a file, there are no additional requests that would be blocked if the thread is locked waiting for I/O. The real reason is future scalability. If we want to build an API on top of this application, the business logic needs to be re-usable and support such implementation. That's where we can really benefit from asynchronous programming.

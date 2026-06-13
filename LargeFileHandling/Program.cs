@@ -19,7 +19,7 @@ try
 
     Console.WriteLine($"Copying {request.SourceFilePath} to {request.DestinationFilePath} with chunk size {request.ChunkSize} bytes...");
     
-    TransferReport report = transferService.Transfer(request);
+    TransferReport report = await transferService.TransferAsync(request, CancellationToken.None);
     var presenter = new ConsoleTransferReport();
     presenter.ShowReport(report);
 

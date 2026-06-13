@@ -5,6 +5,6 @@ namespace LargeFileHandling.Interfaces
     public interface ISourceReader : IDisposable
     {
         long Length { get; }
-        FileChunk Read(long offset, int length);
+        Task<FileChunk> ReadAsync(long offset, int length, CancellationToken cancellationToken);
     }
 }

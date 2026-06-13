@@ -4,6 +4,6 @@ namespace LargeFileHandling.Interfaces
 {
     public interface IFileTransferService
     {
-        TransferReport Transfer(TransferRequest request);
+        Task<TransferReport> TransferAsync(TransferRequest request, CancellationToken cancellationToken);
     }
 }
