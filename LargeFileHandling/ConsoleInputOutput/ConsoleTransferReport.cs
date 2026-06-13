@@ -1,4 +1,5 @@
 using LargeFileHandling.Models;
+using Microsoft.VisualBasic;
 
 namespace LargeFileHandling.ConsoleInputOutput
 {
@@ -9,12 +10,22 @@ namespace LargeFileHandling.ConsoleInputOutput
             ArgumentNullException.ThrowIfNull(report);
 
             Console.WriteLine();
-            Console.WriteLine("Chunk checksums: ");
 
-            foreach (ChunkChecksum checksum in report.ChunkChecksums)
+            if(!report.ChunkChecksums.Any())
+                Console.WriteLine("File is empty. No chunk checksums have been computed.");
+            else
             {
-                Console.WriteLine($"{checksum.Index + 1}) position = {checksum.Offset}, hash = {checksum.Md5Hash}");
+                Console.WriteLine("Chunk checksums: ");
+                foreach (ChunkChecksum checksum in report.ChunkChecksums)
+                {
+                    Console.WriteLine($"{checksum.Index + 1}) position = {checksum.Offset}, hash = {checksum.Md5Hash}");
+                }
             }
+
+            Console.WriteLine();
+            Console.WriteLine($"Source SHA-256: {report.SourceFileHash}");
+            Console.WriteLine($"Destination SHA-256: {report.DestinationFileHash}");
+            Console.WriteLine(report.HashesMatch ? "File checksums match." : "ERROR: File checksums do not match!");
         }
     }
 }

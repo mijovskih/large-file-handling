@@ -9,9 +9,10 @@ using LargeFileHandling.Services;
 try
 {
     IHashCalculator hashCalculator = new Md5HashCalculator();
+    IFileHasher fileHasher = new Sha256HashCalculator();
     ISourceReaderFactory sourceReaderFactory = new FileSourceReaderFactory();
     IChunkReceiverFactory chunkReceiverFactory = new FileChunkReceiverFactory(hashCalculator);
-    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator);
+    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator, fileHasher);
 
     var inputReader = new ConsoleInputReader();
 
