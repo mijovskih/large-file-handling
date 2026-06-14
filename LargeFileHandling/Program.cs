@@ -5,6 +5,7 @@ using LargeFileHandling.ConsoleInputOutput;
 using LargeFileHandling.Interfaces;
 using LargeFileHandling.Models;
 using LargeFileHandling.Services;
+using LargeFileHandling.Retry;
 
 try
 {
@@ -13,7 +14,11 @@ try
     ISourceReaderFactory sourceReaderFactory = new FileSourceReaderFactory();
     IChunkReceiverFactory chunkReceiverFactory = new FileChunkReceiverFactory(hashCalculator);
     IProgressReporter progressReporter = new ConsoleProgressReport();
-    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator, fileHasher, progressReporter);
+
+    const int maxChunkAttempts = 3;
+    IRetryPolicy retryPolicy = new FixedCountRetryPolicy(maxChunkAttempts);
+
+    IFileTransferService transferService = new FileTransferService(sourceReaderFactory, chunkReceiverFactory, hashCalculator, fileHasher, progressReporter, retryPolicy);
 
     var inputReader = new ConsoleInputReader();
 

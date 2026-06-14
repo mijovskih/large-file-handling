@@ -14,3 +14,5 @@ The console app would not benefit from asynchronous programming - it is only 1 r
 Added functionality to compute and show whole file checksums.
 
 Added functionality to display progress while file is being copied.
+
+Added functionality to retry copying of chunk if for some reason it fails.

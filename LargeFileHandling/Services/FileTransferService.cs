@@ -11,24 +11,28 @@ namespace LargeFileHandling.Services
         private readonly IHashCalculator _hashCalculator;
         private readonly IFileHasher _fileHasher;
         private readonly IProgressReporter _progressReporter;
+        private readonly IRetryPolicy _retryPolicy;
         
         public FileTransferService(ISourceReaderFactory sourceReaderFactory, 
             IChunkReceiverFactory chunkReceiverFactory, 
             IHashCalculator hashCalculator,
             IFileHasher fileHasher,
-            IProgressReporter progressReporter)
+            IProgressReporter progressReporter,
+            IRetryPolicy retryPolicy)
         {
             ArgumentNullException.ThrowIfNull(sourceReaderFactory);
             ArgumentNullException.ThrowIfNull(chunkReceiverFactory);
             ArgumentNullException.ThrowIfNull(hashCalculator);
             ArgumentNullException.ThrowIfNull(fileHasher);
             ArgumentNullException.ThrowIfNull(progressReporter);
+            ArgumentNullException.ThrowIfNull(retryPolicy);
 
             _sourceReaderFactory = sourceReaderFactory;
             _chunkReceiverFactory = chunkReceiverFactory;
             _hashCalculator = hashCalculator;
             _fileHasher = fileHasher;
             _progressReporter = progressReporter;
+            _retryPolicy = retryPolicy;
         }
 
         public async Task<TransferReport> TransferAsync(TransferRequest request, CancellationToken cancellationToken)
@@ -47,15 +51,24 @@ namespace LargeFileHandling.Services
                 for (long offset = 0; offset < length; offset += request.ChunkSize)
                 {
                     int chunkLength = (int)Math.Min(request.ChunkSize, length - offset);
-                    FileChunk chunk = await source.ReadAsync(offset, chunkLength, cancellationToken);
+                    long chunkOffset = offset;
+                    int chunkIndex = index;
+                    
+                    string sourceHash = string.Empty; //_hashCalculator.ComputeHash(chunk.Data);
+                    string destinationHash = string.Empty; //await receiver.ReceiveAsync(chunk, cancellationToken);
 
-                    string sourceHash = _hashCalculator.ComputeHash(chunk.Data);
-                    string destinationHash = await receiver.ReceiveAsync(chunk, cancellationToken);
+                    bool verified = await _retryPolicy.ExecuteAsync(async ct =>
+                    {
+                       FileChunk chunk = await source.ReadAsync(chunkOffset, chunkLength, ct);
+                       sourceHash = _hashCalculator.ComputeHash(chunk.Data);
+                       destinationHash = await receiver.ReceiveAsync(chunk, ct);
+                       return sourceHash == destinationHash;
+                    }, cancellationToken);
 
-                    if (sourceHash != destinationHash)
-                        throw new ChunkVerificationException(index, offset, sourceHash, destinationHash);
+                    if (!verified)
+                        throw new ChunkVerificationException(chunkIndex, chunkOffset, sourceHash, destinationHash);
                 
-                    checksums.Add(new ChunkChecksum(index, offset, sourceHash));
+                    checksums.Add(new ChunkChecksum(chunkIndex, chunkOffset, sourceHash));
                     bytesTransferred += chunkLength;
                     _progressReporter.ShowProgress(bytesTransferred, length);
                     index++;
