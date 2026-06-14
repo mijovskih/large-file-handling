@@ -54,8 +54,8 @@ namespace LargeFileHandling.Services
                     long chunkOffset = offset;
                     int chunkIndex = index;
                     
-                    string sourceHash = string.Empty; //_hashCalculator.ComputeHash(chunk.Data);
-                    string destinationHash = string.Empty; //await receiver.ReceiveAsync(chunk, cancellationToken);
+                    string sourceHash = string.Empty;
+                    string destinationHash = string.Empty;
 
                     bool verified = await _retryPolicy.ExecuteAsync(async ct =>
                     {

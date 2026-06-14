@@ -25,8 +25,8 @@ namespace LargeFileHandling.FileSystem
 
             // After writing the chunk, we read it back from disk to calculate the hash.
             // It's important to read it back from disk and not in-memory, in case the write operation got corrupted.
-            byte[] writteBytes = await ReadBackAsync(chunk.Offset, chunk.Data.Length, cancellationToken);
-            return _hashCalculator.ComputeHash(writteBytes);
+            byte[] writtenBytes = await ReadBackAsync(chunk.Offset, chunk.Data.Length, cancellationToken);
+            return _hashCalculator.ComputeHash(writtenBytes);
         }
 
         private async Task<byte[]> ReadBackAsync(long offset, int length, CancellationToken cancellationToken)

@@ -2,7 +2,7 @@ using LargeFileHandling.Interfaces;
 
 namespace LargeFileHandling.Retry
 {
-    public  sealed class FixedCountRetryPolicy : IRetryPolicy
+    public sealed class FixedCountRetryPolicy : IRetryPolicy
     {
         private readonly int _maxAttempts;
 

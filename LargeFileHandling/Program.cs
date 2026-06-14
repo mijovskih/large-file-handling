@@ -39,7 +39,7 @@ catch (FileTransferException ex)
     Console.Error.WriteLine($"File transfer failed: {ex.Message}");
     return 1;
 }
-catch (Exception ex) when (ex is FileNotFoundException  || ex is DirectoryNotFoundException || ex is UnauthorizedAccessException || ex is IOException)
+catch (Exception ex) when (ex is FileNotFoundException || ex is DirectoryNotFoundException || ex is UnauthorizedAccessException || ex is IOException)
 {
     Console.Error.WriteLine($"Error: {ex.Message}");
     return 1;

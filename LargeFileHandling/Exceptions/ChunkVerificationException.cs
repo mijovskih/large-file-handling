@@ -3,7 +3,7 @@ namespace LargeFileHandling.Exceptions
     public sealed class ChunkVerificationException : FileTransferException
     {
         public ChunkVerificationException(int index, long offset, string expectedHash, string actualHash)
-            : base($"Chunk verification failed at offset {offset}. Expected hash: {expectedHash}, Actual hash: {actualHash}.")
+            : base($"Chunk verification with index {index} failed at offset {offset}. Expected hash: {expectedHash}, Actual hash: {actualHash}.")
         {
             Index = index;
             Offset = offset;
