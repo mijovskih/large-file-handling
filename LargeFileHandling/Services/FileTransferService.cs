@@ -41,6 +41,12 @@ namespace LargeFileHandling.Services
             
             var checksums = new List<ChunkChecksum>();
 
+            // This is the place where I use the factories to create the reader/receiver using the path, since
+            // now I have the path in TransferRequest.
+            // The file will be opened once, and used for the whole copying process.
+            // If I were to use a direct interface instead of a factory and place the path in the method,
+            // I would have to open and close the file up to the number of chunks that will be required for the file to be transfered.
+            // And this is for both the source and destination files.
             using (ISourceReader source = _sourceReaderFactory.Create(request.SourceFilePath))
             using (IChunkReceiver receiver = _chunkReceiverFactory.Create(request.DestinationFilePath, source.Length))
             {

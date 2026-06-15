@@ -33,6 +33,8 @@ namespace LargeFileHandling.FileSystem
             return new FileChunk(offset, buffer); // At this point the whole chunk has been read.
         }
 
+        // This will be called when the using statement finishes.
+        // The 0 references is a bit misleading.
         public void Dispose() => _handle.Dispose();
     }
 }

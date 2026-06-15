@@ -45,6 +45,8 @@ namespace LargeFileHandling.FileSystem
             return buffer;
         }
 
+        // This will be called when the using statement finishes.
+        // The 0 references is a bit misleading.
         public void Dispose() => _handle.Dispose();
     }
 }
